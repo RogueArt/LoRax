@@ -1,8 +1,40 @@
-# About
+# About LoRax
 
-Firerisk is a mobile and desktop app that allows you to monitor the fire risk of any area by giving you realtime updates on the temperature, humidity, and soil moisture of an area.
+LoRax is an award-winning wildfire risk monitor. Specifically, LoRax is an IoT distributed system of nodes reporting information that is centralized via the cloud. The name comes from **Lo**ng **Ra**nge e**x**amination, from its ability to report soil moisture, temperature, UV light, humidity data, and GPS coordinates from nearly 300 meters away.
 
-Firerisk uses a MongoDB/Express/React/NodeJS (MERN) stack with MongoDB Atlas for database hosting and websockets for hardware communication.
+<!-- Pictures of mobile app -->
+<h3 align="center">Mobile App</h1>
+<p align="center">
+   <img src="https://user-images.githubusercontent.com/57082175/149679651-0003f97c-132f-448e-9eea-8363890621d1.png" alt="Landing Page" width="360px" height="800px" />
+   <img src="https://user-images.githubusercontent.com/57082175/149679644-77b8c928-5bbf-46b5-8545-b4cf0e2e5491.png" alt="Manage Nodes" width="360px" height="800px" />
+</p>
+
+<!-- Pictures of rock and tree node -->
+<h3 align="center">Hardware (Rock and Tree Node)</h1>
+<h4 align="center">Rock Node</h4>
+<p align="center">
+   <img src="https://user-images.githubusercontent.com/57082175/149680518-dc15a6e8-546b-4861-b017-f184173c6047.jpg" alt="Landing Page" />
+</p>
+<h4 align="center">Tree Node</h4>
+<p align="center">
+   <img align="center" src="https://user-images.githubusercontent.com/57082175/149680521-7bd9342b-39eb-413e-9604-17ffdeb3caaf.gif" alt="Manage Nodes"  />
+</p>
+
+
+### Software:
+The progressive web app is built using a MongoDB/Express/React/NodeJS (MERN) stack using Heroku as our cloud server and MongoDB Atlas to store and persist data. 
+
+### Hardware:
+Each LoRax node uses an ESP 32, using the Arduino IDE to load and flash the firmware onto the board.
+Each node contains:
+- UV sensor
+- Temperature & humidity sensor
+- Soil temperature & moisture sensor
+- OLED display
+- Neo-6M GPS
+- 4 AA batteries (for power)
+
+Each node communicates to our Heroku-hosted backend where data is 
 
 # Getting Started
 
