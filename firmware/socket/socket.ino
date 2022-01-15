@@ -6,7 +6,6 @@
 #include "secrets.h"
 #include <WebSocketsClient.h>
 #include <SocketIOclient.h>
-
 WiFiMulti WiFiMulti;
 SocketIOclient socketIO;
 
@@ -91,24 +90,35 @@ void setup() {
     USE_SERIAL.println();
     USE_SERIAL.println();
 
-      for(uint8_t t = 4; t > 0; t--) {
-          USE_SERIAL.printf("[SETUP] BOOT WAIT %d...\n", t);
-          USE_SERIAL.flush();
-          delay(1000);
-      }
 
-    WiFiMulti.addAP(WIFI, WIFI_PASS);
-
-    //WiFi.disconnect();
-    while(WiFiMulti.run() != WL_CONNECTED) {
-        delay(100);
+    WiFi.begin(WIFI, WIFI_PASS);
+    Serial.print("Connecting to Wi-Fi");
+    //try connecting to wifi
+    while (WiFi.status() != WL_CONNECTED)
+    {
+      Serial.print(".");
+      delay(1000);
     }
+    Serial.println();
+
+    //   for(uint8_t t = 4; t > 0; t--) {
+    //       USE_SERIAL.printf("[SETUP] BOOT WAIT %d...\n", t);
+    //       USE_SERIAL.flush();
+    //       delay(1000);
+    //   }
+
+    // WiFiMulti.addAP(WIFI, WIFI_PASS);
+
+    // //WiFi.disconnect();
+    // while(WiFiMulti.run() != WL_CONNECTED) {
+    //     delay(100);
+    // }
 
     String ip = WiFi.localIP().toString();
     USE_SERIAL.printf("[SETUP] WiFi Connected %s\n", ip.c_str());
 
     // server address, port and URL
-    socketIO.begin(BASE_URL, 8080, "/");
+    socketIO.begin(BASE_URL, 8880, "/socket.io/?EIO=4");
 
     // event handler
     socketIO.onEvent(socketIOEvent);
@@ -120,7 +130,7 @@ void loop() {
 
     uint64_t now = millis();
 
-    if(now - messageTimestamp > 2000) {
+    if(now - messageTimestamp > 10000) {
         messageTimestamp = now;
 
         // creat JSON message for Socket.IO (event)
