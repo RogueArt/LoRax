@@ -1,17 +1,20 @@
+
+
+#include <Arduino.h>
+
 #include <WiFi.h>
 #include <WiFiMulti.h>
 #include <WiFiClientSecure.h>
-#include <ArduinoJson.h>
 
+#include <ArduinoJson.h>
 #include "secrets.h"
 #include <WebSocketsClient.h>
 #include <SocketIOclient.h>
+
 WiFiMulti WiFiMulti;
 SocketIOclient socketIO;
 
 #define USE_SERIAL Serial
-
-//yoinked from https://github.com/Links2004/arduinoWebSockets/blob/master/examples/esp32/WebSocketClientSocketIOack/WebSocketClientSocketIOack.ino
 
 
 void socketIOEvent(socketIOmessageType_t type, uint8_t * payload, size_t length) {
@@ -79,46 +82,36 @@ void socketIOEvent(socketIOmessageType_t type, uint8_t * payload, size_t length)
     }
 }
 
-
-
 void setup() {
     //USE_SERIAL.begin(921600);
     USE_SERIAL.begin(115200);
+    Serial.setDebugOutput(true);
+
+    //Serial.setDebugOutput(true);
     USE_SERIAL.setDebugOutput(true);
 
     USE_SERIAL.println();
     USE_SERIAL.println();
     USE_SERIAL.println();
 
+      for(uint8_t t = 4; t > 0; t--) {
+          USE_SERIAL.printf("[SETUP] BOOT WAIT %d...\n", t);
+          USE_SERIAL.flush();
+          delay(1000);
+      }
 
-    WiFi.begin(WIFI, WIFI_PASS);
-    Serial.print("Connecting to Wi-Fi");
-    //try connecting to wifi
-    while (WiFi.status() != WL_CONNECTED)
-    {
-      Serial.print(".");
-      delay(1000);
+    WiFiMulti.addAP(WIFI, WIFI_PASS );
+
+    //WiFi.disconnect();
+    while(WiFiMulti.run() != WL_CONNECTED) {
+        delay(100);
     }
-    Serial.println();
-
-    //   for(uint8_t t = 4; t > 0; t--) {
-    //       USE_SERIAL.printf("[SETUP] BOOT WAIT %d...\n", t);
-    //       USE_SERIAL.flush();
-    //       delay(1000);
-    //   }
-
-    // WiFiMulti.addAP(WIFI, WIFI_PASS);
-
-    // //WiFi.disconnect();
-    // while(WiFiMulti.run() != WL_CONNECTED) {
-    //     delay(100);
-    // }
 
     String ip = WiFi.localIP().toString();
     USE_SERIAL.printf("[SETUP] WiFi Connected %s\n", ip.c_str());
 
     // server address, port and URL
-    socketIO.begin(BASE_URL, 8880, "/socket.io/?EIO=4");
+    socketIO.begin("https://firerisk.herokuapp.com/", 8080, "/socket.io/?EIO=4");
 
     // event handler
     socketIO.onEvent(socketIOEvent);
