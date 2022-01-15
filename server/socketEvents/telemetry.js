@@ -1,17 +1,17 @@
 module.exports = (socket, io) => {
-  socket.on("temperature", () => {
+  socket.on("temperature", (data) => {
     console.log("Temp sent!");
   });
 
-  socket.on("humidity", () => {
+  socket.on("humidity", (data) => {
     console.log("Humidity sent!");
   });
 
-  socket.on("soil", () => {
+  socket.on("soil", (data) => {
     console.log("Soil sent!");
   });
 
-  socket.on("light", () => {
+  socket.on("light", (data) => {
     console.log("Light sent!");
   });
 };
