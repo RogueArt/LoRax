@@ -23,16 +23,7 @@ app.get("/", (req, res) => {
 
 const server = http.createServer(app);
 const { Server } = require("socket.io");
-const io = new Server(server, {
-    transports: ["websocket", "polling"],
-    allowEIO3: true,
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"],
-        transports: ["websocket", "polling"],
-        credentials: true
-    }
-});
+const io = new Server(server);
 app.set("socketio", io);
 
 

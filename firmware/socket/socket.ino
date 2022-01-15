@@ -111,7 +111,7 @@ void setup() {
     USE_SERIAL.printf("[SETUP] WiFi Connected %s\n", ip.c_str());
 
     // server address, port and URL
-    socketIO.begin("https://firerisk.herokuapp.com/", 8080, "/socket.io/?EIO=4");
+    socketIO.begin("https://firerisk.herokuapp.com/", 21826, "/socket.io/?EIO=4");
 
     // event handler
     socketIO.onEvent(socketIOEvent);
