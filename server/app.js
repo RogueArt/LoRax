@@ -31,7 +31,10 @@ socketServer.on("connection", (socket) => {
   socketConnections.push(socket);
 
   socket.on("message", (msg) => {
-    socketConnections.forEach((s) => s.send(msg));
+    socketConnections.forEach((s) => {
+      s.send(msg);
+      console.log(msg);
+    });
   });
   socket.on("close", () => {
     console.log("Closing socket!");
