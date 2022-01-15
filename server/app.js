@@ -1,25 +1,27 @@
+const http = require('http')
+
 const express = require("express");
-const http = require("http");
+const app = express();
 
 const dotenv = require("dotenv");
 const cors = require("cors");
-//load in our dotenv
-dotenv.config();
+dotenv.config(); //load in our dotenv
 
-const app = express();
-//parse body of requests as json
-app.use(express.json());
-//enable cors
-app.use(cors());
+app.use(express.json()); // Parse body of requests as json
+app.use(cors()); // Enable cors
 
-const server = http.createServer(app);
+const db = require('./db/db.js')
+
+const server = http.createServer(app)
 const { Server } = require("socket.io");
 const io = new Server(server);
 app.set("socketio", io);
 
-//load in your routes
+// Import routers
 const socketRoutes = require("./routes/socketRoutes");
+const apiRoutes = require("./routes/api");
 app.use("/", socketRoutes);
+app.use('/api', apiRoutes)
 
 app.get("/", (req, res) => {
   res.send({ message: "Express server running!" });
@@ -39,7 +41,7 @@ io.on("connection", (socket) => {
 });
 
 // Have server listen at our port
-const PORT = process.env.PORT ?? 8080
-server.listen(PORT, () => {
+const PORT = process.env.PORT ?? 8080;
+app.listen(PORT, () => {
   console.log("Express app listening on port", PORT);
 });
