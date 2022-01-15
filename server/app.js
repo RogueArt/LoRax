@@ -1,55 +1,55 @@
-const http = require('http')
-
+const http = require("http");
 const express = require("express");
 const app = express();
+const cors = require("cors");
+const ws = require("ws");
+
+const socketServer = new ws.Server({
+  noServer: true,
+});
 
 const dotenv = require("dotenv");
-const cors = require("cors");
+
 dotenv.config(); //load in our dotenv
 
-const db = require('./db/db.js');
+const db = require("./db/db.js");
 
 // Import routers
 const socketRoutes = require("./routes/socketRoutes");
 const apiRoutes = require("./routes/api");
 
 app.use("/", socketRoutes);
-app.use('/api', apiRoutes)
+app.use("/api", apiRoutes);
 
 app.get("/", (req, res) => {
-    res.send({ message: "Express server running!" });
-  });
-
-
-const server = http.createServer(app);
-const { Server } = require("socket.io");
-const io = new Server(server);
-app.set("socketio", io);
-
-
-
-// Listen for any connections on socket
-io.on("connection", (socket) => {
-  console.log("a user connected");
-
-  // Add any socket functions here
-  require("./socketEvents/telemetry")(socket, io);
-
-  // Run code on socket disconnect
-  socket.on("disconnect", () => {
-    console.log("user disconnected");
-  });
-
-  socket.on("connect_error", (err) => {
-    console.log(`connect_error due to ${err.message}`);
-  });
+  res.send({ message: "Express server running!" });
 });
 
+let socketConnections = [];
 
+socketServer.on("connection", (socket) => {
+  socketConnections.push(socket);
+
+  socket.on("message", (msg) => {
+    socketConnections.forEach((s) => s.send(msg));
+  });
+  socket.on("close", () => {
+    console.log("Closing socket!");
+    socketConnections = socketConnections.filter((s) => s !== socket);
+    console.log("There are " + socketConnections.length + " connections left.");
+  });
+  require("./socketEvents/telemetry")(socket);
+
+  console.log("Received socket open!");
+});
 
 // Have server listen at our port
 const PORT = process.env.PORT ?? 8080;
-server.listen(PORT, () => {
-  console.log("Express app listening on port", PORT);
-
+const rootServer = app.listen(PORT, () => {
+  console.log(`Example listening on heroku at port: ` + PORT);
+});
+rootServer.on("upgrade", (request, socket, head) => {
+  socketServer.handleUpgrade(request, socket, head, (socket) => {
+    socketServer.emit("connection", socket, request);
+  });
 });
