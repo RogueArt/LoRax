@@ -1,0 +1,29 @@
+@use 'imports/var' as var;
+
+header {
+    height: 94px;
+    font-size: 14px;
+    border-bottom: 3px solid var.$accent-green;
+    font-family: "Noto Sans", sans-serif;
+    padding: 20px 22px;
+
+    .header-text {
+        height: 100%;
+        display: flex;
+        flex-flow: column;
+        justify-content: center;
+    }
+
+    h1 {
+        color: var.$accent-green;
+        font-size: 2em;
+        line-height: 20px;
+    }
+
+    h6 {
+        color: var.$info-grey;
+        font-size: 1.1em;
+        margin: 0;
+        font-weight: normal;
+    }
+}
