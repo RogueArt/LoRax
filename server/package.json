@@ -11,6 +11,12 @@
     "socket.io": "^4.4.1"
   },
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "devDependencies": {
+    "eslint": "^8.6.0",
+    "nodemon": "^2.0.15",
+    "prettier": "2.5.1"
   }
 }
