@@ -1,0 +1,46 @@
+@use 'imports/var' as var;
+
+main {
+    padding: 20px 20px;
+
+    .info-cards {
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: space-between;
+    }
+
+    .map-container {
+        height: 180px;
+        width: 100%;
+        margin-top: 10px;
+        border-radius: var.$card-bradius;
+        box-shadow: var.$card-boxshadow;
+    }
+
+    .info-text {
+        margin-top: 20px;
+        color: var.$info-grey;
+        font-weight: bold;
+        font-size: 12px;
+        line-height: 16px;
+    }
+
+    .disconnect {
+        display: flex;
+        flex-flow: row;
+        justify-content: center;
+        margin-top: 26px;
+
+        button {
+            width: 149px;
+            height: 36px;
+            font-family: "Noto Sans", sans-serif;
+            font-weight: bold;
+            font-size: 16px;
+            background-color: var.$accent-green;
+            color: var.$background;
+            border-radius: var.$button-bradius;
+            border: none;
+        }
+    }
+}
