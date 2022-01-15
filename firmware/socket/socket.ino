@@ -1,8 +1,12 @@
+
+
+#include <Arduino.h>
+
 #include <WiFi.h>
 #include <WiFiMulti.h>
 #include <WiFiClientSecure.h>
-#include <ArduinoJson.h>
 
+#include <ArduinoJson.h>
 #include "secrets.h"
 #include <WebSocketsClient.h>
 #include <SocketIOclient.h>
@@ -11,8 +15,6 @@ WiFiMulti WiFiMulti;
 SocketIOclient socketIO;
 
 #define USE_SERIAL Serial
-
-//yoinked from https://github.com/Links2004/arduinoWebSockets/blob/master/examples/esp32/WebSocketClientSocketIOack/WebSocketClientSocketIOack.ino
 
 
 void socketIOEvent(socketIOmessageType_t type, uint8_t * payload, size_t length) {
@@ -80,11 +82,12 @@ void socketIOEvent(socketIOmessageType_t type, uint8_t * payload, size_t length)
     }
 }
 
-
-
 void setup() {
     //USE_SERIAL.begin(921600);
     USE_SERIAL.begin(115200);
+    Serial.setDebugOutput(true);
+
+    //Serial.setDebugOutput(true);
     USE_SERIAL.setDebugOutput(true);
 
     USE_SERIAL.println();
@@ -97,7 +100,7 @@ void setup() {
           delay(1000);
       }
 
-    WiFiMulti.addAP(WIFI, WIFI_PASS);
+    WiFiMulti.addAP(WIFI, WIFI_PASS );
 
     //WiFi.disconnect();
     while(WiFiMulti.run() != WL_CONNECTED) {
@@ -108,7 +111,7 @@ void setup() {
     USE_SERIAL.printf("[SETUP] WiFi Connected %s\n", ip.c_str());
 
     // server address, port and URL
-    socketIO.begin(BASE_URL, 8080, "/");
+    socketIO.begin("https://firerisk.herokuapp.com/", 21826, "/socket.io/?EIO=4");
 
     // event handler
     socketIO.onEvent(socketIOEvent);
@@ -120,7 +123,7 @@ void loop() {
 
     uint64_t now = millis();
 
-    if(now - messageTimestamp > 2000) {
+    if(now - messageTimestamp > 10000) {
         messageTimestamp = now;
 
         // creat JSON message for Socket.IO (event)

@@ -1,4 +1,4 @@
-module.exports = (socket, io) => {
+module.exports = (socket) => {
   socket.on("temperature", (data) => {
     console.log("Temp sent!");
   });
