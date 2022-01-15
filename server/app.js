@@ -5,7 +5,6 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 //load in our dotenv
 dotenv.config();
-const port = process.env.PORT || 8080;
 
 const app = express();
 //parse body of requests as json
@@ -26,17 +25,21 @@ app.get("/", (req, res) => {
   res.send({ message: "Express server running!" });
 });
 
+// Listen for any connections on socket
 io.on("connection", (socket) => {
   console.log("a user connected");
 
-  //add our socket functions here
+  // Add any socket functions here
   require("socketEvents/telemetry")(socket, io);
 
+  // Run code on socket disconnect
   socket.on("disconnect", () => {
     console.log("user disconnected");
   });
 });
 
-server.listen(port, () => {
-  console.log("Express app listening on port: " + port);
+// Have server listen at our port
+const PORT = process.env.PORT ?? 8080
+server.listen(PORT, () => {
+  console.log("Express app listening on port", PORT);
 });
