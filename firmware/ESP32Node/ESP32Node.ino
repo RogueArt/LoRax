@@ -49,8 +49,9 @@ void getIpAddress2String(const IPAddress& ipAddress)
 
 using namespace websockets;
 WebsocketsClient client;
-float latitude , longitude;
-int numSat;
+float latitude = 0;
+float longitude = 0;
+int numSat = 0;
 Adafruit_seesaw ss;
 Adafruit_VEML6070 uv = Adafruit_VEML6070();
 Adafruit_Si7021 sensor = Adafruit_Si7021();
@@ -65,8 +66,8 @@ void registerNode(){
     DynamicJsonDocument data(1024);
     data["type"] = 0;
     unsigned long hashedTime = millis();
-    // arduinoHash = sha1(hashedTime);
-    arduinoHash = "42";
+    arduinoHash = sha1(String(hashedTime));
+    //arduinoHash = "42";
     Serial.print("Arduino Hash is: ");
     Serial.println(arduinoHash);
     data["from"] = "esp";
@@ -110,17 +111,27 @@ void sendUV(int data){
   client.send(serializedTelemetry);
 }
 
-void sendGPS(float longitude, float latitude, int satelites){
-  String gpsString = "";     // empty string
-  gpsString.concat(longitude);
-  gpsString.concat("|");
-  gpsString.concat(latitude);
-  gpsString.concat("|");
-  gpsString.concat(satelites);
+void sendGPS(float longitude, float latitude, int satellites){
+  // String gpsString = "";     // empty string
+  // gpsString.concat(longitude);
+  // gpsString.concat("|");
+  // gpsString.concat(latitude);
+  // gpsString.concat("|");
+  // gpsString.concat(satellites);
   DynamicJsonDocument telemetry(1024);
-  telemetry["type"] = 1;
+  DynamicJsonDocument location(1024);
+  telemetry["type"] = 3;
+  telemetry["numSatellites"] = satellites;
   telemetry["sensor"] = "gps";
-  telemetry["value"] = gpsString;
+  location["lat"] = latitude;
+  location["lng"] = longitude;
+  telemetry["id"] = arduinoHash;
+  char serializedLocation[200];
+  serializeJson(location, serializedLocation);
+
+  telemetry["location"] = serializedLocation;
+
+
   char serializedTelemetry[200];
   serializeJson(telemetry, serializedTelemetry);
   client.send(serializedTelemetry);
@@ -157,6 +168,11 @@ void setup()
   else {
     Serial.println("Failed!");
   }
+
+  IPAddress Ip(192, 168, 1, 5);
+  IPAddress NMask(255, 255, 255, 0);
+  WiFi.softAPConfig(Ip, Ip, NMask);
+
   //store the ip address in ipAddressString()
   getIpAddress2String(WiFi.softAPIP());
 
@@ -264,9 +280,10 @@ void readSensorData(){
         longitude = gps.location.lng();
         numSat = gps.satellites.value();
       }else{
-        latitude = 0;
-        longitude = 0;
-        numSat = 0;
+        //don't update if connection lost
+        // latitude = 0;
+        // longitude = 0;
+        // numSat = 0;
       }
     }
   }
@@ -281,7 +298,7 @@ void loop()
       client.poll();
           
       uint64_t now = millis();
-      if (now - messageTimestamp > 5000) 
+      if (now - messageTimestamp > 30000) 
       {
         messageTimestamp = now;
         readSensorData();
