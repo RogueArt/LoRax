@@ -1,14 +1,14 @@
 {
   "files": {
-    "main.css": "/static/css/main.5f2a5270.css",
-    "main.js": "/static/js/main.56d03089.js",
-    "index.html": "/index.html",
-    "static/media/arrow.svg": "/static/media/arrow.a8f2d6775c142cba38536fbf583d946a.svg",
-    "main.5f2a5270.css.map": "/static/css/main.5f2a5270.css.map",
-    "main.56d03089.js.map": "/static/js/main.56d03089.js.map"
+    "main.css": "/LoRax/static/css/main.5f2a5270.css",
+    "main.js": "/LoRax/static/js/main.aef43765.js",
+    "index.html": "/LoRax/index.html",
+    "static/media/arrow.svg": "/LoRax/static/media/arrow.a8f2d6775c142cba38536fbf583d946a.svg",
+    "main.5f2a5270.css.map": "/LoRax/static/css/main.5f2a5270.css.map",
+    "main.aef43765.js.map": "/LoRax/static/js/main.aef43765.js.map"
   },
   "entrypoints": [
     "static/css/main.5f2a5270.css",
-    "static/js/main.56d03089.js"
+    "static/js/main.aef43765.js"
   ]
 }
