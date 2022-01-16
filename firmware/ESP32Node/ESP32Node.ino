@@ -4,6 +4,7 @@
 #include "Adafruit_seesaw.h"
 #include <TinyGPSPlus.h>
 #include <ArduinoWebsockets.h>
+#include <AsyncWebSocket.h>
 #include <ArduinoJson.h>
 #include <WiFi.h>
 #include <ESPAsyncWebServer.h>
@@ -18,6 +19,51 @@
 
 
 AsyncWebServer server(80);
+
+//handle the /ws path on our arduino's webserver as a websocket
+AsyncWebSocket ws("/ws");
+
+
+//websocket event handler
+void onEvent(AsyncWebSocket* server, AsyncWebSocketClient* client, AwsEventType type,
+  void* arg, uint8_t* data, size_t len){
+    Serial.println("Received Message!");
+    switch(type){
+      case WS_EVT_CONNECT:
+        Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
+        break;
+      case WS_EVT_DISCONNECT:
+        Serial.printf("WebSocket client #%u disconnected\n", client->id());
+        break;
+      case WS_EVT_DATA:
+        handleWebSocketMessage(arg, data, len);
+        break;
+      case WS_EVT_ERROR:
+        Serial.println("Something went wrong");
+      case WS_EVT_PONG:
+        break;
+    }    
+  }
+
+
+void handleWebSocketMessage(void* arg, uint8_t *data, size_t len){
+  AwsFrameInfo *info = (AwsFrameInfo*)arg;
+  //verifying info exists and is text
+  if (info->final && info->index ==0 && info->len == len && info->opcode == WS_TEXT){
+    Serial.println("Received message!");
+  }
+}
+
+//websocket initialization and event handler
+void initWebSocket(){
+  ws.onEvent(onEvent);
+  server.addHandler(&ws);
+  Serial.println("Socket set-up");
+}
+
+void notifyWifiConnection(){
+  ws.textAll("Connected!");
+  }
 
 String arduinoHash = "";
 char ipAddressString[100] = "";
@@ -49,8 +95,9 @@ void getIpAddress2String(const IPAddress& ipAddress)
 
 using namespace websockets;
 WebsocketsClient client;
-float latitude , longitude;
-int numSat;
+float latitude = 0;
+float longitude = 0;
+int numSat = 0;
 Adafruit_seesaw ss;
 Adafruit_VEML6070 uv = Adafruit_VEML6070();
 Adafruit_Si7021 sensor = Adafruit_Si7021();
@@ -65,8 +112,8 @@ void registerNode(){
     DynamicJsonDocument data(1024);
     data["type"] = 0;
     unsigned long hashedTime = millis();
-    // arduinoHash = sha1(hashedTime);
-    arduinoHash = "42";
+    arduinoHash = sha1(String(hashedTime));
+    //arduinoHash = "42";
     Serial.print("Arduino Hash is: ");
     Serial.println(arduinoHash);
     data["from"] = "esp";
@@ -110,17 +157,27 @@ void sendUV(int data){
   client.send(serializedTelemetry);
 }
 
-void sendGPS(float longitude, float latitude, int satelites){
-  String gpsString = "";     // empty string
-  gpsString.concat(longitude);
-  gpsString.concat("|");
-  gpsString.concat(latitude);
-  gpsString.concat("|");
-  gpsString.concat(satelites);
+void sendGPS(float longitude, float latitude, int satellites){
+  // String gpsString = "";     // empty string
+  // gpsString.concat(longitude);
+  // gpsString.concat("|");
+  // gpsString.concat(latitude);
+  // gpsString.concat("|");
+  // gpsString.concat(satellites);
   DynamicJsonDocument telemetry(1024);
-  telemetry["type"] = 1;
+  DynamicJsonDocument location(1024);
+  telemetry["type"] = 3;
+  telemetry["numSatellites"] = satellites;
   telemetry["sensor"] = "gps";
-  telemetry["value"] = gpsString;
+  location["lat"] = latitude;
+  location["lng"] = longitude;
+  telemetry["id"] = arduinoHash;
+  char serializedLocation[200];
+  serializeJson(location, serializedLocation);
+
+  telemetry["location"] = serializedLocation;
+
+
   char serializedTelemetry[200];
   serializeJson(telemetry, serializedTelemetry);
   client.send(serializedTelemetry);
@@ -141,6 +198,9 @@ void setup()
   //Begin WiFi Soft Access Point
   boolean wifiResult =  WiFi.softAP(ACCESS_POINT_SSID, ACCESS_POINT_PASSWORD);
 
+  //begin ws for wifi connection
+  initWebSocket();
+
   Serial2.begin(115200);
   oled.begin(SSD1306_SWITCHCAPVCC, 0x3C);
   oled.clearDisplay(); // clear display
@@ -157,6 +217,11 @@ void setup()
   else {
     Serial.println("Failed!");
   }
+
+  IPAddress Ip(192, 168, 1, 5);
+  IPAddress NMask(255, 255, 255, 0);
+  WiFi.softAPConfig(Ip, Ip, NMask);
+
   //store the ip address in ipAddressString()
   getIpAddress2String(WiFi.softAPIP());
 
@@ -264,9 +329,10 @@ void readSensorData(){
         longitude = gps.location.lng();
         numSat = gps.satellites.value();
       }else{
-        latitude = 0;
-        longitude = 0;
-        numSat = 0;
+        //don't update if connection lost
+        // latitude = 0;
+        // longitude = 0;
+        // numSat = 0;
       }
     }
   }
@@ -281,7 +347,7 @@ void loop()
       client.poll();
           
       uint64_t now = millis();
-      if (now - messageTimestamp > 5000) 
+      if (now - messageTimestamp > 30000) 
       {
         messageTimestamp = now;
         readSensorData();
@@ -308,6 +374,7 @@ void loop()
     else {
       Serial.println("Connected to Wifi, Connecting to server.");
       wifiConnected = true;
+      notifyWifiConnection();
       // try to connect to Websockets server
       bool connected = client.connect(websockets_server_host);
       if(connected) {

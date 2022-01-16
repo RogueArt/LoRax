@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { GoogleApiWrapper, Circle, InfoWindow, Map } from "google-maps-react";
+import { GoogleApiWrapper, Circle, Map } from "google-maps-react";
 import PropTypes from 'prop-types'
 import mapStyle from '../../styles/mapStyles/dark.js'
 
@@ -15,11 +15,11 @@ const testCoordinates = [
 ]
 
 export function MapContainer({ google }) {
-  function onInfoWindowClose() {
-    setSelectedPlace({ name: '' })
-  }
+  // function onInfoWindowClose() {
+  // //   setSelectedPlace({ name: '' })
+  // // }
 
-  const [selectedPlace, setSelectedPlace] = useState({ name: '' })
+  // const [selectedPlace, setSelectedPlace] = useState({ name: '' })
   
   /* eslint-disable */
   const [markerCoordinates, setMarkerCoordinates] = useState(testCoordinates)
@@ -36,11 +36,11 @@ export function MapContainer({ google }) {
         
         {generateMarkers(markerCoordinates)}
 
-        <InfoWindow onClose={onInfoWindowClose}>
+        {/* <InfoWindow onClose={onInfoWindowClose}>
             <div>
               <h1>{selectedPlace.name}</h1>
             </div>
-        </InfoWindow>
+        </InfoWindow> */}
       </Map>
     );
 }
