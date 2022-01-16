@@ -36,7 +36,8 @@ socketServer.on("connection", async (socket) => {
     switch (type) {
       case 0: return socketHandlers.registerConnection(data, socket)
       case 1: return socketHandlers.processSensors(data)
-      case 2:  return socketHandlers.renameNode(data)
+      case 2: return socketHandlers.renameNode(data)
+      case 3: return socketHandlers.registerLocation(data)
     }
     // socketConnections.forEach((s) => s.send(JSON.stringify(msg.data)));
   });
