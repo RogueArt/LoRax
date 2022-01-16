@@ -1,0 +1,14 @@
+{
+  "files": {
+    "main.css": "/LoRax/static/css/main.5f2a5270.css",
+    "main.js": "/LoRax/static/js/main.aef43765.js",
+    "index.html": "/LoRax/index.html",
+    "static/media/arrow.svg": "/LoRax/static/media/arrow.a8f2d6775c142cba38536fbf583d946a.svg",
+    "main.5f2a5270.css.map": "/LoRax/static/css/main.5f2a5270.css.map",
+    "main.aef43765.js.map": "/LoRax/static/js/main.aef43765.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.5f2a5270.css",
+    "static/js/main.aef43765.js"
+  ]
+}
