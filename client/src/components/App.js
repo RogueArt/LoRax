@@ -71,13 +71,8 @@ function App() {
           ...state,
           [sensor]: {
               value: value,
-<<<<<<< HEAD
-              warning: getValueWarning(msg),
-          },
-=======
               warning: getValueWarning({ sensor, value }),
           }, 
->>>>>>> 844f7d9b2940553272fd2d4c9c741902406c5fd1
         });
         console.log("new state");
         console.log(state);
