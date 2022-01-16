@@ -45,7 +45,13 @@ function ConnectANode() {
 
      async function sendCredentials(ssid, pass){
       const connectURL = `http://${ips[chosen]}/connect?ssid=${ssid}&password=${pass}`;
-      await fetch(connectURL);
+      await fetch(connectURL, {
+        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        mode: 'cors', // no-cors, *cors, same-origin
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        }
+      });
     }
 
     
@@ -63,16 +69,16 @@ function ConnectANode() {
               </code>
             </div>
             <InstructionText instruction={instructions[1]} />
-            <input type="text" value={ssidInput} onChange={(e) => setSSidInput(e.target.value)} />
-            <input type="text" value ={ssidPassInput} onChange={(e) => setSsidPassInput(e.target.value)} />
+            <input type="text" placeholder='WiFi SSID' value={ssidInput} onChange={(e) => setSSidInput(e.target.value)} />
+            <input type="password" placeholder='WiFi Password' value ={ssidPassInput} onChange={(e) => setSsidPassInput(e.target.value)} />
             <InstructionText instruction={instructions[2]} />
         <button onClick={() => setChosen(0)} style={ chosen == 0 ? {
           backgroundColor: "orange"
         } : {}} >TreeNode</button>
-        <button onClick={() => setChosen(1)} style={ chosen == 0 ? {
+        <button onClick={() => setChosen(1)} style={ chosen == 1 ? {
           backgroundColor: "orange"
         } : {}}>FireNode</button>
-        <button onClick={}>Connect!</button>
+        <button onClick={() => sendCredentials(ssidInput, ssidPassInput)}>Connect!</button>
 
             
         </main>
