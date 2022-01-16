@@ -1,5 +1,5 @@
-const db = require('./db/db.js')
-const DataModel = require('./db/DataModel.js')
+const db = require('../db/db.js')
+const DataModel = require('../db/DataModel.js')
 
 /**
  * {
@@ -21,7 +21,9 @@ const socketHandlers = {
     socketConnections[from].push(socket)
     idToSocketConnection.set(id, { socket, name: id })
   },
-  processSensors: async function ({ id, sensor, value }) {
+  processSensors: async function (msg) {
+    const { id, sensor, value } = msg
+    
     // Debugging code:
     console.log('Got here!')
     socketConnections['client'].forEach(s => {

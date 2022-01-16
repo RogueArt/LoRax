@@ -9,10 +9,43 @@
 #include <ESPAsyncWebServer.h>
 #include <Adafruit_SSD1306.h>
 #include <TinyGPSPlus.h>
+#include <Hash.h>
 #include "secrets.h" //has defines for wifi ssid, password, server info
+
 #define SCREEN_WIDTH 128 // OLED display width,  in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 //AsyncWebServer server(80);
+
+
+AsyncWebServer server(80);
+
+String arduinoHash = "";
+char ipAddressString[100] = "";
+
+//local wifi globals
+char localSSID[100] ="";
+char localPassword[200] = "";
+
+
+void getIpAddress2String(const IPAddress& ipAddress)
+{
+    strcpy(ipAddressString, "");
+    strcat(ipAddressString, String(ipAddress[0]).c_str());
+    Serial.print("Data is : ");
+    Serial.println(ipAddressString);
+    strcat(ipAddressString, ".");
+    strcat(ipAddressString, String(ipAddress[1]).c_str());
+    strcat(ipAddressString, ".");
+    Serial.print("Data is : ");
+    Serial.println(ipAddressString);
+    strcat(ipAddressString, String(ipAddress[2]).c_str());
+    strcat(ipAddressString, ".");
+    strcat(ipAddressString, String(ipAddress[3]).c_str());
+    Serial.print("Data is : ");
+    //store our ipAddress string in side global ipAddress variable, passed around via Wifi_AP
+    Serial.println(ipAddressString);
+}
+
 
 using namespace websockets;
 WebsocketsClient client;
@@ -31,7 +64,14 @@ void registerNode(){
   // create JSON message for event
     DynamicJsonDocument data(1024);
     data["type"] = 0;
+    unsigned long hashedTime = millis();
+    // arduinoHash = sha1(hashedTime);
+    arduinoHash = "42";
+    Serial.print("Arduino Hash is: ");
+    Serial.println(arduinoHash);
     data["from"] = "esp";
+    data["id"] = arduinoHash;
+
     char serializedData[200];
     serializeJson(data, serializedData);
     client.send(serializedData);
@@ -42,7 +82,8 @@ void sendHumidity(float data){
   telemetry["type"] = 1;
   telemetry["sensor"] = "humid";
   telemetry["value"] = data;
-  char serializedTelemetry[200];
+  telemetry["id"] = arduinoHash;
+  char serializedTelemetry[300];
   serializeJson(telemetry, serializedTelemetry);
   client.send(serializedTelemetry);
 }
@@ -52,7 +93,8 @@ void sendTemp(float data){
   telemetry["type"] = 1;
   telemetry["sensor"] = "temp";
   telemetry["value"] = data;
-  char serializedTelemetry[200];
+  telemetry["id"] = arduinoHash;
+  char serializedTelemetry[300];
   serializeJson(telemetry, serializedTelemetry);
   client.send(serializedTelemetry);
 }
@@ -62,23 +104,44 @@ void sendUV(int data){
   telemetry["type"] = 1;
   telemetry["sensor"] = "uv";
   telemetry["value"] = data;
+  telemetry["id"] = arduinoHash;
+  char serializedTelemetry[300];
+  serializeJson(telemetry, serializedTelemetry);
+  client.send(serializedTelemetry);
+}
+
+void sendGPS(float longitude, float latitude, int satelites){
+  String gpsString = "";     // empty string
+  gpsString.concat(longitude);
+  gpsString.concat("|");
+  gpsString.concat(latitude);
+  gpsString.concat("|");
+  gpsString.concat(satelites);
+  DynamicJsonDocument telemetry(1024);
+  telemetry["type"] = 1;
+  telemetry["sensor"] = "gps";
+  telemetry["value"] = gpsString;
   char serializedTelemetry[200];
   serializeJson(telemetry, serializedTelemetry);
   client.send(serializedTelemetry);
 }
 
+
 bool connected = false;
+
+bool wifiConnected = false;
+bool attemptConnect = false;
 
 void setup()
 {
+  Serial.begin(115200);
+  
   WiFi.mode(WIFI_MODE_APSTA);
 
-  // //Begin WiFi Soft Access Point
-  // WiFi.softAP(ACCESS_POINT_SSID, ACCESS_POINT_PASSWORD);
-  WiFi.begin(ssid, password);
+  //Begin WiFi Soft Access Point
+  boolean wifiResult =  WiFi.softAP(ACCESS_POINT_SSID, ACCESS_POINT_PASSWORD);
 
-  Serial.begin(115200);
-    Serial2.begin(115200);
+  Serial2.begin(115200);
   oled.begin(SSD1306_SWITCHCAPVCC, 0x3C);
   oled.clearDisplay(); // clear display
   oled.setTextSize(1);          // text size
@@ -87,34 +150,86 @@ void setup()
   oled.println("Starting GPS"); // text to display
   oled.display();               // show on OLED
   
+  if(wifiResult){
+  Serial.print("Set up Soft Access Point called ");
+  Serial.println(ACCESS_POINT_SSID);
+  }
+  else {
+    Serial.println("Failed!");
+  }
+  //store the ip address in ipAddressString()
+  getIpAddress2String(WiFi.softAPIP());
 
-    // Wait some time to connect to wifi
-    for(int i = 0; i < 10 && WiFi.status() != WL_CONNECTED; i++) {
-        Serial.print(".");
-        delay(1000);
-    }
+  //Print it out
+  Serial.print("IP Address String is: ");
+  Serial.println(ipAddressString);
 
-    // Check if connected to wifi
-    if(WiFi.status() != WL_CONNECTED) {
-        Serial.println("No Wifi!");
-        return;
-    }
+  delay(1000);
 
-    Serial.println("Connected to Wifi, Connecting to server.");
-    // try to connect to Websockets server
-    bool connected = client.connect(websockets_server_host);
-    if(connected) {
-        Serial.println("Connected!");
-        registerNode();
-    } else {
-        Serial.println("Not Connected!");
-    }
+  DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
+  server.begin();
+
+  server.on("/connect",
+  HTTP_POST,
+  [](AsyncWebServerRequest *request) {
     
-    // run callback when messages are received
-    client.onMessage([&](WebsocketsMessage message){
-        Serial.print("Got Message: ");
-        Serial.println(message.data());
-    });
+    //temp ssid string
+    strcpy(localSSID, "");
+    strcpy(localPassword, "");
+    // char localSSID[100] ="";
+    // char localPassword[100] = "";
+
+    //DynamicJsonDocument requestBody(1024);
+    if (request->hasParam("ssid")){
+      strcat(localSSID, request->getParam("ssid")->value().c_str());         
+    }
+    else {
+      Serial.println("No SSID!");
+      strcat(localSSID, "ERROR");
+      //ERROR!
+      request->send(401);
+      return;
+      
+    }
+
+    if (request->hasParam("password")){
+      strcat(localPassword, request->getParam("password")->value().c_str());
+    } else {
+      Serial.println("No Password!");
+      strcat(localPassword, "ERROR");
+      //ERROR!
+      request->send(401);
+      return;
+    }
+    Serial.print("SSID is: ");
+    Serial.println(localSSID);
+    // Serial.print("Password is: ");
+    // Serial.println(localPassword);
+    Serial.println("SSID and password exist!");
+    attemptConnect=true;
+    request->send(200);
+  }
+);
+
+  server.on("/isConnected",
+    HTTP_GET,
+    [](AsyncWebServerRequest *request) {
+      if(WiFi.status() != WL_CONNECTED){
+        Serial.println("Not connected to wifi!");
+        request->send(400);
+        return;
+      }
+      else {
+        Serial.println("Connected to wifi!");
+
+        request->send(200, "text/plain",localSSID);
+        return;
+      }    
+    }
+  );
+
+  SerialGPS.begin(115200, SERIAL_8N1, 16, 17);
+
   uv.begin(VEML6070_1_T); // pass in the integration time constant
   if (!ss.begin(0x36)) {
     Serial.println("ERROR! seesaw not found");
@@ -155,25 +270,63 @@ void readSensorData(){
       }
     }
   }
+  sendGPS(latitude, longitude, numSat);
 }
 
 void loop()
 {
   // let the websockets client check for incoming messages
-  if(client.available()) {
-     client.poll();
-        
-    uint64_t now = millis();
-    if (now - messageTimestamp > 5000) 
-    {
-      messageTimestamp = now;
-      readSensorData();
-      //client.send("hullo");
-  
-      // Print JSON for debugging
-      //Serial.println(output);
+  if(wifiConnected){
+    if(client.available()) {
+      client.poll();
+          
+      uint64_t now = millis();
+      if (now - messageTimestamp > 5000) 
+      {
+        messageTimestamp = now;
+        readSensorData();
+        // Print JSON for debugging
+        //Serial.println(output);
+      }
     }
   }
- 
+  else if (attemptConnect){
+    WiFi.begin(localSSID, localPassword);
+    // Wait some time to connect to wifi
+    for(int i = 0; i < 10 && WiFi.status() != WL_CONNECTED; i++) {
+        Serial.print(".");
+        delay(1000);
+    }
+
+    wl_status_t connectStatus = WiFi.status();
+    if (connectStatus == WL_NO_SSID_AVAIL || connectStatus == WL_CONNECT_FAILED){
+      Serial.println("Incorrect wifi credentials!");
+      attemptConnect=false;      
+      //request->send(401);
+    }
+
+    else {
+      Serial.println("Connected to Wifi, Connecting to server.");
+      wifiConnected = true;
+      // try to connect to Websockets server
+      bool connected = client.connect(websockets_server_host);
+      if(connected) {
+          Serial.println("Connected to websocket!");
+          registerNode();
+      } else {
+          Serial.println("Failed Connection!");
+      }
+      attemptConnect = false;
+      // run callback when messages are received
+      client.onMessage([&](WebsocketsMessage message){
+          Serial.print("Got Message: ");
+          Serial.println(message.data());
+      });
+    }
+
+  } else {
+    //Serial.println("Setting up...");
+  }
+
   delay(1000);
 }
