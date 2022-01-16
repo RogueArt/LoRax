@@ -3,22 +3,25 @@
 #include "Adafruit_Si7021.h"
 #include "Adafruit_seesaw.h"
 #include <TinyGPSPlus.h>
-#include <HardwareSerial.h>
 #include <ArduinoWebsockets.h>
 #include <ArduinoJson.h>
 #include <WiFi.h>
 #include <ESPAsyncWebServer.h>
+#include <Adafruit_SSD1306.h>
+#include <TinyGPSPlus.h>
 #include "secrets.h" //has defines for wifi ssid, password, server info
-
+#define SCREEN_WIDTH 128 // OLED display width,  in pixels
+#define SCREEN_HEIGHT 64 // OLED display height, in pixels
 //AsyncWebServer server(80);
 
 using namespace websockets;
 WebsocketsClient client;
 float latitude , longitude;
-String  lat_str , lng_str;
+int numSat;
 Adafruit_seesaw ss;
 Adafruit_VEML6070 uv = Adafruit_VEML6070();
 Adafruit_Si7021 sensor = Adafruit_Si7021();
+Adafruit_SSD1306 oled(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 TinyGPSPlus gps;
 HardwareSerial SerialGPS(1);
 int incomingByte = 0;
@@ -75,7 +78,14 @@ void setup()
   WiFi.begin(ssid, password);
 
   Serial.begin(115200);
-  SerialGPS.begin(115200, SERIAL_8N1, 16, 17);
+    Serial2.begin(115200);
+  oled.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+  oled.clearDisplay(); // clear display
+  oled.setTextSize(1);          // text size
+  oled.setTextColor(WHITE);     // text color
+  oled.setCursor(0, 10);        // position to display
+  oled.println("Starting GPS"); // text to display
+  oled.display();               // show on OLED
   
 
     // Wait some time to connect to wifi
@@ -129,19 +139,22 @@ void readSensorData(){
   sendTemp(sensor.readTemperature());
   float tempC = ss.getTemp();
   uint16_t capread = ss.touchRead(0);
-
   Serial.print("Ground Temperature: "); Serial.print(tempC); Serial.println("*C");
   Serial.print("Ground Capacitive: "); Serial.println(capread);
-
-  if (SerialGPS.available() > 0) {
-    // read the incoming byte:
-    incomingByte = SerialGPS.read();
-
-    // say what you got:
-    Serial.print("I received: ");
-    Serial.println(incomingByte, DEC);
-  } 
-
+  while(Serial2.available()){ // check for gps data 
+    if(gps.encode(Serial2.read()))// encode gps data 
+    { 
+      if(gps.location.isValid()){
+        latitude = gps.location.lat();
+        longitude = gps.location.lng();
+        numSat = gps.satellites.value();
+      }else{
+        latitude = 0;
+        longitude = 0;
+        numSat = 0;
+      }
+    }
+  }
 }
 
 void loop()
@@ -161,26 +174,6 @@ void loop()
       //Serial.println(output);
     }
   }
-  // Serial.print("UV light level: ");
-  // Serial.println(uv.readUV());
-  // Serial.print("Humidity:    ");
-  // Serial.print(sensor.readHumidity(), 2);
-  // Serial.print("\tTemperature: ");
-  // Serial.println(sensor.readTemperature(), 2);
-  // float tempC = ss.getTemp();
-  // uint16_t capread = ss.touchRead(0);
-
-  // Serial.print("Ground Temperature: "); Serial.print(tempC); Serial.println("*C");
-  // Serial.print("Ground Capacitive: "); Serial.println(capread);
-
-  // if (SerialGPS.available() > 0) {
-  //   // read the incoming byte:
-  //   incomingByte = SerialGPS.read();
-
-  //   // say what you got:
-  //   Serial.print("I received: ");
-  //   Serial.println(incomingByte, DEC);
-  // } 
-
+ 
   delay(1000);
 }
