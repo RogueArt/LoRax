@@ -7,7 +7,11 @@
 #include <ArduinoWebsockets.h>
 #include <ArduinoJson.h>
 #include <WiFi.h>
+#include <ESPAsyncWebServer.h>
 #include "secrets.h" //has defines for wifi ssid, password, server info
+
+//AsyncWebServer server(80);
+
 using namespace websockets;
 WebsocketsClient client;
 float latitude , longitude;
@@ -60,13 +64,19 @@ void sendUV(int data){
   client.send(serializedTelemetry);
 }
 
+bool connected = false;
 
 void setup()
 {
-  
+  WiFi.mode(WIFI_MODE_APSTA);
+
+  // //Begin WiFi Soft Access Point
+  // WiFi.softAP(ACCESS_POINT_SSID, ACCESS_POINT_PASSWORD);
+  WiFi.begin(ssid, password);
+
   Serial.begin(115200);
   SerialGPS.begin(115200, SERIAL_8N1, 16, 17);
-  WiFi.begin(ssid, password);
+  
 
     // Wait some time to connect to wifi
     for(int i = 0; i < 10 && WiFi.status() != WL_CONNECTED; i++) {
