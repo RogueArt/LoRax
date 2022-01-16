@@ -1,5 +1,5 @@
-const db = require('./db/db.js')
-const DataModel = require('./db/DataModel.js')
+const db = require('../db/db.js')
+const DataModel = require('../db/DataModel.js')
 
 /**
  * {
