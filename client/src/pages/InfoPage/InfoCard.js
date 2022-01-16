@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from "classnames";
-import '../styles/InfoCard.scss';
+import '../../styles/InfoCard.scss';
 
 function InfoCard({ warning, title, smaller, value }) {
     return (

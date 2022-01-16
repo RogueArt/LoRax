@@ -1,0 +1,65 @@
+@use 'imports/var' as var;
+
+.node-card-list {
+  padding: 20px;
+  padding-top: 0px;
+}
+
+.node-card {
+  position: relative;
+  height: 96px;
+  width: 318px;
+  padding: 9px 12px;
+  margin: 20px 0;
+  background-color: var.$card-back;
+  border-radius: var.$card-bradius;
+  box-shadow: var.$card-boxshadow;
+  box-sizing: border-box;
+  cursor: pointer;
+
+  display: flex;
+  flex-direction: row;
+
+  h1, p {
+    margin: 0;
+  }
+
+  &__title {
+    font-size: 25px;
+    padding-bottom: 2px;
+    color: var.$primary-text;
+  }
+
+  &__signal {
+    font-size: 10px;
+    font-weight: bold;
+    padding-bottom: 5px;
+    color: var.$primary-text;
+  }
+
+  &__sensor-issue {
+    font-size: 14px;
+    font-weight: bold;
+  }
+
+  // TO-DO: See if there's a way to make this more reusable
+  &--warning {
+    border: 1px solid var.$warning-red-border;
+
+    .node-card__sensor-issue {
+      color: var.$warning-red;
+    }
+  }
+
+  &--normal {
+    .node-card__sensor-issue {
+      color: var.$accent;
+    }
+  }
+
+  &__arrow-container {
+    position: absolute;
+    right: 27px;
+    top: 37px;
+  }
+}

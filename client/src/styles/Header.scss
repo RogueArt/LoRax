@@ -2,10 +2,31 @@
 
 header {
     height: 94px;
+    display: flex;
+    flex-flow: row;
+    justify-content: start;
     font-size: 14px;
     border-bottom: 3px solid var.$accent;
     font-family: "Noto Sans", sans-serif;
     padding: 20px 22px;
+    box-sizing: border-box;
+
+    .back-button {
+        cursor: pointer;
+        display: flex;
+        flex-flow: row;
+        justify-content: center;
+        align-items: center;
+        background-color: var.$card-back;
+        margin-right: 10px;
+        height: 55px;
+        width: 60px;
+        border-radius: var.$card-bradius;
+
+        img {
+            transform: rotate(180deg);
+        }
+    }
 
     .header-text {
         height: 100%;
@@ -17,7 +38,7 @@ header {
     h1 {
         color: var.$accent;
         font-size: 2em;
-        line-height: 20px;
+        line-height: 36px;
     }
 
     h6 {
