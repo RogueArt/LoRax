@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
 import { GoogleApiWrapper, Circle, Map } from "google-maps-react";
 import PropTypes from 'prop-types'
-import mapStyle from '../styles/mapStyles/dark.js'
+import mapStyle from '../../styles/mapStyles/dark.js'
 
+console.log(process.env)
 const GOOGLE_API_KEY = process.env.REACT_APP_GOOGLE_API_KEY
+console.log(GOOGLE_API_KEY)
 
 const testCoordinates = [
       { lat: 37.77, lng: -122.42 },
@@ -11,8 +13,6 @@ const testCoordinates = [
       { lat: 36.73, lng: -122.44 },
       { lat: 36.75, lng: -122.42 }
 ]
-
-
 
 export function MapContainer({ google }) {
   // function onInfoWindowClose() {
@@ -72,15 +72,6 @@ function generateMarkers(markerCoordinates = []) {
     return [generateCircleCenter(lat, lng, idx * 2 + 1), generateCircleShadow(lat, lng, idx * 2 + 2)]
   }).flat()
 }
-
-       {/* <Circle 
-          center={{ lat: 37.77, lng: -122.42 }} 
-          radius={400} 
-          strokeOpacity={0}
-          fillColor='#FC8415'
-          fillOpacity={0.5}
-        /> */}
-      {/* <Circle radius={12000} onClick={(e) => handleMarkerClick(e, lat, lng)} center={{ lat, lng }} strokeColor={'transparent'} strokeOpacity={70} fillColor={'FC8415'} /> */}
 
 MapContainer.propTypes = {
     google: PropTypes.any

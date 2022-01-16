@@ -1,5 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
+import '../styles/NodeCard.scss';
+import Arrow from '../styles/imports/arrow.svg'
 
 function numberToIssuesString(issues) {
     switch (issues) {
@@ -17,21 +19,25 @@ function numberToIssuesString(issues) {
 }
 
 function NodeCard({name, signal, issues}) {
-    return <div>
-        <div>
-            <h1>{ name }</h1>
-            <p>Signal Strength: { signal }</p>
-            <p>{ numberToIssuesString(issues) }</p>
+    function getCardType(issues) {
+        return issues >= 1 ? 'warning' : 'normal'
+    }
+
+    return <div className={`node-card node-card--${getCardType(issues)}`}>
+        <div className="node-card__info">
+            <h1 className="node-card__title">{ name }</h1>
+            <p className="node-card__signal">Signal Strength: { signal }</p>
+            <p className="node-card__sensor-issue">{ numberToIssuesString(issues) }</p>
         </div>
-        <div>
-            <img src="../styles/imports/arrow.svg"/>
+        <div className="node-card__arrow-container">
+            <img src={Arrow} />
         </div>
     </div>
 }
 
 NodeCard.propTypes = {
     name: PropTypes.string,
-    signal: PropTypes.bool,
+    signal: PropTypes.string,
     issues: PropTypes.number,
 };
 

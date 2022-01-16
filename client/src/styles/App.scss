@@ -24,23 +24,4 @@ main {
         font-size: 12px;
         line-height: 16px;
     }
-
-    .disconnect {
-        display: flex;
-        flex-flow: row;
-        justify-content: center;
-        margin-top: 26px;
-
-        button {
-            width: 149px;
-            height: 36px;
-            font-family: "Noto Sans", sans-serif;
-            font-weight: bold;
-            font-size: 16px;
-            background-color: var.$button;
-            color: var.$background;
-            border-radius: var.$button-bradius;
-            border: none;
-        }
-    }
 }
