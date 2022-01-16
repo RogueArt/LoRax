@@ -42,6 +42,14 @@ const socketHandlers = {
     const newData = new DataModel({ node_name, sensor, values: [value] })
     return await newData.save().catch(console.error)
   },
+  renameNode: async function ({ id, name }) {
+    // Check if the id exists in our connection
+    if (!idToSocketConnection.has(id)) return console.error('ID does not exist in map!')
+
+    // If it does, update the name
+    const { socket } = idToSocketConnection.get(id)
+    idToSocketConnection.set(id, { socket, name })
+  },
   handleConnectionClose: async function() {
     console.log('Closing socket!')
     // socketConnections = socketConnections.filter((s) => s !== socket);
