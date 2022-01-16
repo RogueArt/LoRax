@@ -27,9 +27,9 @@ const sensorToFullName = {
 }
 
 function getValueWarning({ sensor, value }) {
-  const isDangerousValue = valueWarnings[sensor]
+  const isDangerousValue = valueWarnings[sensor];
 
-  if (isDangerousValue(value)) return `The ${sensorToFullName[sensor]} is unsafe.`
+  if (isDangerousValue(value)) return `The ${sensorToFullName[sensor]} is unsafe.`;
   else ''
 }
 
@@ -54,20 +54,22 @@ function App() {
   })
 
   /* eslint-disable */
-  const [connection, setConnection] = useState(new WebSocket("ws://firerisk.herokuapp.com/ws"))
+  const [connection, setConnection] = useState(undefined);
   
   useEffect(() => {
-    connection.onopen = () => {
+    const newConnection = new WebSocket("ws://firerisk.herokuapp.com/ws");
+
+    newConnection.onopen = () => {
       let data = JSON.stringify(
         {
           "type": 0, // registering
           "from": "client",
         }
       );
-    connection.send(data);
-
+      newConnection.send(data);
     }
-    connection.onmessage = (msg) => {
+    
+    newConnection.onmessage = (msg) => {
       const { type, sensor, value } = JSON.parse(msg.data);
       if (type === 1) {
         setState({
@@ -80,44 +82,46 @@ function App() {
         console.log(state);
       }
     }
-  }, [])
+    
+    setConnection(newConnection);
+  }, []);
 
-    return (
-      <main>
-        <div className="info-cards">
-          <InfoCard
-            title="Soil Moisture"
-            value={state.soil.value}
-            warning={state.soil.warning}
-          />
-          <InfoCard
-            title="Temperature"
-            value={state.temp.value}
-            warning={state.temp.warning}
-          />
-          <InfoCard
-            title="UV Light"
-            value={state.uv.value}
-            warning={state.uv.warning}
-            smaller
-          />
-          <InfoCard
-            title="Humidity"
-            value={state.humid.value}
-            warning={state.humid.warning}
-          />
-        </div>
-        <div className="map-container">
-          <MapContainer />
-        </div>
-        <div className="info-text">
-          Here’s some more information about plants or fires or whatever we decide to do. Lorem ipsum dolor sit amet, consecteur adipiscing elit. Cras turpis massa, gravida eu nunc ac, pretium luctus tortor. Nulla facilisi. Donec auctor facilisis sapien. 
-        </div>
-        <div className="disconnect">
-          <button>Disconnect</button>
-        </div>
-      </main>
-    );
+  return (
+    <main>
+      <div className="info-cards">
+        <InfoCard
+          title="Soil Moisture"
+          value={state.soil.value}
+          warning={state.soil.warning}
+        />
+        <InfoCard
+          title="Temperature"
+          value={state.temp.value}
+          warning={state.temp.warning}
+        />
+        <InfoCard
+          title="UV Light"
+          value={state.uv.value}
+          warning={state.uv.warning}
+          smaller
+        />
+        <InfoCard
+          title="Humidity"
+          value={state.humid.value}
+          warning={state.humid.warning}
+        />
+      </div>
+      <div className="map-container">
+        <MapContainer />
+      </div>
+      <div className="info-text">
+        Here’s some more information about plants or fires or whatever we decide to do. Lorem ipsum dolor sit amet, consecteur adipiscing elit. Cras turpis massa, gravida eu nunc ac, pretium luctus tortor. Nulla facilisi. Donec auctor facilisis sapien. 
+      </div>
+      <div className="disconnect">
+        <button>Disconnect</button>
+      </div>
+    </main>
+  );
 }
 
 export default App;
