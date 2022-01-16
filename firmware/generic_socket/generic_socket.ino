@@ -129,8 +129,9 @@ void loop()
     messageTimestamp = now;
 
     // creat JSON message for Socket.IO (event)
-    DynamicJsonDocument doc(1024);
-    JsonArray array = doc.to<JsonArray>();
+    DynamicJsonDocument array(1024);
+    
+    
 
     // add evnet name
     // Hint: socket.on('event_name', ....
