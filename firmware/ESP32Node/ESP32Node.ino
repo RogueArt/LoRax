@@ -67,6 +67,23 @@ void sendUV(int data){
   client.send(serializedTelemetry);
 }
 
+void sendGPS(float longitude, float latitude, int satelites){
+  String gpsString = "";     // empty string
+  gpsString.concat(longitude);
+  gpsString.concat("|");
+  gpsString.concat(latitude);
+  gpsString.concat("|");
+  gpsString.concat(satelites);
+  DynamicJsonDocument telemetry(1024);
+  telemetry["type"] = 1;
+  telemetry["sensor"] = "gps";
+  telemetry["value"] = gpsString;
+  char serializedTelemetry[200];
+  serializeJson(telemetry, serializedTelemetry);
+  client.send(serializedTelemetry);
+}
+
+
 bool connected = false;
 
 void setup()
@@ -155,6 +172,7 @@ void readSensorData(){
       }
     }
   }
+  sendGPS(latitude, longitude, numSat);
 }
 
 void loop()
