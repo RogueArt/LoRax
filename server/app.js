@@ -26,24 +26,44 @@ app.get("/", (req, res) => {
   res.send({ message: "Express server running!" });
 });
 
-let socketConnections = [];
+let socketConnections = {
+  "esp": [],
+  "client": []
+};
 
+let idToConnection = new Map();
+
+  // socket.on("message", async (rawData) => {
+  //   socketConnections.forEach((s) => s.send(rawData));
+
+  //   // Parse the data we received
+  //   const data = JSON.parse(rawData.toString())
+  //   console.log('Debug socket data: ', data)
+
+  //   // Deal with received ESP data here
+  //   await handleESPReceiveData(data)
 socketServer.on("connection", (socket) => {
-  socketConnections.push(socket);
-
-  socket.on("message", async (rawData) => {
-    socketConnections.forEach((s) => s.send(rawData));
-
-    // Parse the data we received
-    const data = JSON.parse(rawData.toString())
-    console.log('Debug socket data: ', data)
-
-    // Deal with received ESP data here
-    await handleESPReceiveData(data)
+  socket.on("message", (msg) => {
+    msg = JSON.parse(msg.toString());
+    console.log(msg);
+    switch (msg.type) {
+      case 0:
+        console.log(msg.from);
+        socketConnections[msg.from].push(socket);
+        idToConnection.set(msg.id, socket);
+        break;
+      case 1:
+        console.log("Got here!");
+        socketConnections["client"].forEach((s) => {
+          s.send(JSON.stringify(msg));
+        });
+        break;
+    }
+    // socketConnections.forEach((s) => s.send(JSON.stringify(msg.data)));
   });
   socket.on("close", () => {
     console.log("Closing socket!");
-    socketConnections = socketConnections.filter((s) => s !== socket);
+    // socketConnections = socketConnections.filter((s) => s !== socket);
     console.log("There are " + socketConnections.length + " connections left.");
   });
   require("./socketEvents/telemetry")(socket);

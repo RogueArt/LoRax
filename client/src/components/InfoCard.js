@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from "classnames";
 import '../styles/InfoCard.scss';
 
@@ -20,10 +21,10 @@ class InfoCard extends React.Component {
 }
 
 InfoCard.propTypes = {
-    title: String,
-    smaller: Boolean,
-    value: String,
-    warning: String,
+    title: PropTypes.string,
+    smaller: PropTypes.bool,
+    value: PropTypes.string,
+    warning: PropTypes.string,
 }
 
 export default InfoCard;

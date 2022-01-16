@@ -30,6 +30,10 @@
 
         h1 {
             color: var.$warning-red;
+
+            &.smaller {
+                margin-top: 0;
+            }
         }
 
         p {
