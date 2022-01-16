@@ -12,7 +12,7 @@ function InfoCard({ warning, title, smaller, value }) {
             <h3>{title}</h3>
             <h1 className={classNames({
                 "smaller": smaller,
-            })}>{value }</h1>
+            })}>{value}</h1>
             <p>{warning}</p>
         </div>
     )
