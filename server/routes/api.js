@@ -5,7 +5,7 @@ const API_BASE_PATH = '/api'
 
 // Import models
 const db = require('../db/db.js')
-const DataModel = require('../db/models/Data')
+const DataModel = require('../db/DataModel')
 
 // API routes
 router.get('/', (req, res) => {
