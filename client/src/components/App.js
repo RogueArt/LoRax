@@ -72,13 +72,17 @@ function App() {
     newConnection.onmessage = (msg) => {
       const { type, sensor, value } = JSON.parse(msg.data);
       if (type === 1) {
+        console.log("previous state");
+        console.log(state);
+        console.log(sensor);
         setState({
           ...state,
           [sensor]: {
               value: value,
-              warning: getValueWarning,
-          }, 
+              warning: getValueWarning(msg),
+          },
         });
+        console.log("new state");
         console.log(state);
       }
     }
