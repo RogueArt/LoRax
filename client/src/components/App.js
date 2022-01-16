@@ -113,7 +113,7 @@ function App() {
       <div className="info-text">
         Here’s some more information about plants or fires or whatever we decide to do. Lorem ipsum dolor sit amet, consecteur adipiscing elit. Cras turpis massa, gravida eu nunc ac, pretium luctus tortor. Nulla facilisi. Donec auctor facilisis sapien. 
       </div>
-      <div className="disconnect">
+      <div className="btn-container">
         <button>Disconnect</button>
       </div>
     </main>

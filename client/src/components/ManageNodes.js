@@ -9,7 +9,7 @@ function ManageNodes() {
     // const [password, setPassword] = useState("");
     
     return (
-        <main>
+        <main className={'node-card-list'}>
             <NodeCard
                 name="Backyard Kipling"
                 signal="Good"
@@ -25,6 +25,12 @@ function ManageNodes() {
                 signal="Disconnected"
                 issues={0}
             />
+            <div className="btn-container">
+                <button>Edit Nodes</button>
+            </div>
+            <div className="btn-container">
+                <button>Connect Wi-Fi</button>
+            </div>
         </main>
     );
 }

@@ -7,7 +7,7 @@ import ManageNodes from './components/ManageNodes';
 
 ReactDOM.render(
   <React.StrictMode>
-    <Header />
+    <Header title={'Manage Connections'} />
     <ManageNodes />
   </React.StrictMode>,
   document.getElementById('root')

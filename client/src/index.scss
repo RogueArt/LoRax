@@ -16,3 +16,22 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.btn-container {
+  display: flex;
+  flex-flow: row;
+  justify-content: center;
+  margin-top: 26px;
+
+  button {
+      width: 149px;
+      height: 36px;
+      font-family: "Noto Sans", sans-serif;
+      font-weight: bold;
+      font-size: 16px;
+      background-color: var.$button;
+      color: #F8F8F8;
+      border-radius: var.$button-bradius;
+      border: none;
+  }
+}
