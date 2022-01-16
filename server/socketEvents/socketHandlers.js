@@ -21,7 +21,7 @@ const socketHandlers = {
     socketConnections[from].push(socket)
     idToSocketConnection.set(id, { socket, name: id })
   },
-  processSensors: async function ({ node_name, sensor, value }) {
+  processSensors: async function ({ id, sensor, value }) {
     // Debugging code:
     console.log('Got here!')
     socketConnections['client'].forEach(s => {
@@ -30,16 +30,16 @@ const socketHandlers = {
 
     // Processing:
     // Check if the sensor exists for the node
-    if (await DataModel.exists({ node_name, sensor })) {
+    if (await DataModel.exists({ id, sensor })) {
       // If it does, then find and update it
       return DataModel.findOneAndUpdate(
-        { node_name, sensor },
+        { id, sensor },
         { $push: { values: value } }
       )
     }
 
-    // Otherwise, create a new document insert it
-    const newData = new DataModel({ node_name, sensor, values: [value] })
+    // Otherwise, create a new document and insert it
+    const newData = new DataModel({ id, sensor, values: [value] })
     return await newData.save().catch(console.error)
   },
   renameNode: async function ({ id, name }) {
