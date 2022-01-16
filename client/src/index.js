@@ -3,12 +3,14 @@ import ReactDOM from 'react-dom';
 import './index.scss';
 // import App from './components/App';
 import Header from './components/Header';
-import ManageNodes from './components/ManageNodes';
+import ManageNodesPage from './pages/ManageNodes/ManageNodesPage';
+import ConnectANodePage from './pages/ConnectANode/ConnectANodePage'
+import InfoPage from './pages/InfoPage/InfoPage'
+import Stack from "./navigation/stack";
 
 ReactDOM.render(
   <React.StrictMode>
-    <Header title={'Manage Connections'} />
-    <ManageNodes />
+    <Stack />
   </React.StrictMode>,
   document.getElementById('root')
 );
