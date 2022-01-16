@@ -4,42 +4,40 @@ import '../styles/App.scss';
 import MapContainer from './MapContainer';
 // import ReactFlow from 'react-flow-renderer';
 
-class App extends React.Component {
-  render () {
-    return (
-      <main>
-        <div className="info-cards">
-          <InfoCard
-            title="Soil Moisture"
-            value="100%"
-            warning="This soil is highly unsafe."
-          />
-          <InfoCard
-            title="Temperature"
-            value="67°F"
-          />
-          <InfoCard
-            title="UV Light"
-            value="Normal"
-            smaller
-          />
-          <InfoCard
-            title="Humidity"
-            value="53%"
-          />
-        </div>
-        <div  className="map-container">
-          <MapContainer />
-        </div>
-        <div className="info-text">
-          Here’s some more information about plants or fires or whatever we decide to do. Lorem ipsum dolor sit amet, consecteur adipiscing elit. Cras turpis massa, gravida eu nunc ac, pretium luctus tortor. Nulla facilisi. Donec auctor facilisis sapien. 
-        </div>
-        <div className="disconnect">
-          <button>Disconnect</button>
-        </div>
-      </main>
-    );
-  }
+function App() {
+  return (
+    <main>
+      <div className="info-cards">
+        <InfoCard
+          title="Soil Moisture"
+          value="100%"
+          warning="This soil is highly unsafe."
+        />
+        <InfoCard
+          title="Temperature"
+          value="67°F"
+        />
+        <InfoCard
+          title="UV Light"
+          value="Normal"
+          smaller
+        />
+        <InfoCard
+          title="Humidity"
+          value="53%"
+        />
+      </div>
+      <div  className="map-container">
+        <MapContainer />
+      </div>
+      <div className="info-text">
+        Here’s some more information about plants or fires or whatever we decide to do. Lorem ipsum dolor sit amet, consecteur adipiscing elit. Cras turpis massa, gravida eu nunc ac, pretium luctus tortor. Nulla facilisi. Donec auctor facilisis sapien. 
+      </div>
+      <div className="disconnect">
+        <button>Disconnect</button>
+      </div>
+    </main>
+  );
 }
 
 export default App;
