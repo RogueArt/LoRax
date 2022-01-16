@@ -4,6 +4,7 @@
 #include "Adafruit_seesaw.h"
 #include <TinyGPSPlus.h>
 #include <ArduinoWebsockets.h>
+#include <AsyncWebSocket.h>
 #include <ArduinoJson.h>
 #include <WiFi.h>
 #include <ESPAsyncWebServer.h>
@@ -18,6 +19,51 @@
 
 
 AsyncWebServer server(80);
+
+//handle the /ws path on our arduino's webserver as a websocket
+AsyncWebSocket ws("/ws");
+
+
+//websocket event handler
+void onEvent(AsyncWebSocket* server, AsyncWebSocketClient* client, AwsEventType type,
+  void* arg, uint8_t* data, size_t len){
+    Serial.println("Received Message!");
+    switch(type){
+      case WS_EVT_CONNECT:
+        Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
+        break;
+      case WS_EVT_DISCONNECT:
+        Serial.printf("WebSocket client #%u disconnected\n", client->id());
+        break;
+      case WS_EVT_DATA:
+        handleWebSocketMessage(arg, data, len);
+        break;
+      case WS_EVT_ERROR:
+        Serial.println("Something went wrong");
+      case WS_EVT_PONG:
+        break;
+    }    
+  }
+
+
+void handleWebSocketMessage(void* arg, uint8_t *data, size_t len){
+  AwsFrameInfo *info = (AwsFrameInfo*)arg;
+  //verifying info exists and is text
+  if (info->final && info->index ==0 && info->len == len && info->opcode == WS_TEXT){
+    Serial.println("Received message!");
+  }
+}
+
+//websocket initialization and event handler
+void initWebSocket(){
+  ws.onEvent(onEvent);
+  server.addHandler(&ws);
+  Serial.println("Socket set-up");
+}
+
+void notifyWifiConnection(){
+  ws.textAll("Connected!");
+  }
 
 String arduinoHash = "";
 char ipAddressString[100] = "";
@@ -151,6 +197,9 @@ void setup()
 
   //Begin WiFi Soft Access Point
   boolean wifiResult =  WiFi.softAP(ACCESS_POINT_SSID, ACCESS_POINT_PASSWORD);
+
+  //begin ws for wifi connection
+  initWebSocket();
 
   Serial2.begin(115200);
   oled.begin(SSD1306_SWITCHCAPVCC, 0x3C);
@@ -325,6 +374,7 @@ void loop()
     else {
       Serial.println("Connected to Wifi, Connecting to server.");
       wifiConnected = true;
+      notifyWifiConnection();
       // try to connect to Websockets server
       bool connected = client.connect(websockets_server_host);
       if(connected) {
