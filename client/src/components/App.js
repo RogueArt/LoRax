@@ -5,18 +5,10 @@ import MapContainer from './MapContainer';
 // import ReactFlow from 'react-flow-renderer';
 
 const valueWarnings = {
-  soil: (v) => {
-    return (v >= 30 && v <= 70);
-  },
-  temp: (v) => {
-    return (v >= 50 && v <= 80);
-  },
-  humid: (v) => {
-    return (v >= 30 && v <= 80);
-  },
-  uv: (v) => {
-    return (v === "Very Low" || v === "Very High");
-  }
+  soil: v => v >= 30 && v <= 70,
+  temp: v => v >= 50 && v <= 80,
+  humid: v => v >= 30 && v <= 80,
+  uv: v => v === "Very Low" || v === "Very High",
 }
 
 const sensorToFullName = {
@@ -79,8 +71,13 @@ function App() {
           ...state,
           [sensor]: {
               value: value,
+<<<<<<< HEAD
               warning: getValueWarning(msg),
           },
+=======
+              warning: getValueWarning({ sensor, value }),
+          }, 
+>>>>>>> 844f7d9b2940553272fd2d4c9c741902406c5fd1
         });
         console.log("new state");
         console.log(state);
