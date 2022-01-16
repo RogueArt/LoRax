@@ -338,6 +338,7 @@ void readSensorData(){
   oled.println(tempC);
   oled.print("Soil Moisture: "); 
   oled.println(capread);
+  sendSoil(capread);
   oled.print("UV Reading: ");
   oled.println(uv.readUV());
   oled.display();
