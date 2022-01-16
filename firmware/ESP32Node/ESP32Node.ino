@@ -65,7 +65,7 @@ void notifyWifiConnection(){
   ws.textAll("Connected!");
   }
 
-String arduinoHash = "";
+String arduinoHash = ACCESS_POINT_SSID;
 char ipAddressString[100] = "";
 
 //local wifi globals
@@ -111,9 +111,6 @@ void registerNode(){
   // create JSON message for event
     DynamicJsonDocument data(1024);
     data["type"] = 0;
-    unsigned long hashedTime = millis();
-    arduinoHash = sha1(String(hashedTime));
-    //arduinoHash = "42";
     Serial.print("Arduino Hash is: ");
     Serial.println(arduinoHash);
     data["from"] = "esp";
@@ -139,6 +136,16 @@ void sendTemp(float data){
   DynamicJsonDocument telemetry(1024);
   telemetry["type"] = 1;
   telemetry["sensor"] = "temp";
+  telemetry["value"] = data;
+  telemetry["id"] = arduinoHash;
+  char serializedTelemetry[300];
+  serializeJson(telemetry, serializedTelemetry);
+  client.send(serializedTelemetry);
+}
+void sendSoil(unsigned int data){
+  DynamicJsonDocument telemetry(1024);
+  telemetry["type"] = 1;
+  telemetry["sensor"] = "soil";
   telemetry["value"] = data;
   telemetry["id"] = arduinoHash;
   char serializedTelemetry[300];
@@ -207,7 +214,7 @@ void setup()
   oled.setTextSize(1);          // text size
   oled.setTextColor(WHITE);     // text color
   oled.setCursor(0, 10);        // position to display
-  oled.println("Starting GPS"); // text to display
+  oled.println("Trying to Connect!"); // text to display
   oled.display();               // show on OLED
   
   if(wifiResult){
@@ -218,7 +225,7 @@ void setup()
     Serial.println("Failed!");
   }
 
-  IPAddress Ip(192, 168, 1, 5);
+  IPAddress Ip(192, 168, 1, NODE_IP_NUM);
   IPAddress NMask(255, 255, 255, 0);
   WiFi.softAPConfig(Ip, Ip, NMask);
 
@@ -308,6 +315,8 @@ void setup()
 unsigned long messageTimestamp = 0;
 
 void readSensorData(){
+  oled.clearDisplay();
+  oled.setCursor(0, 10);  
   Serial.print("UV light level: ");
   Serial.println(uv.readUV());
   sendUV(uv.readUV());
@@ -319,8 +328,19 @@ void readSensorData(){
   sendTemp(sensor.readTemperature());
   float tempC = ss.getTemp();
   uint16_t capread = ss.touchRead(0);
-  Serial.print("Ground Temperature: "); Serial.print(tempC); Serial.println("*C");
+   Serial.print("Ground Temperature: "); Serial.print(tempC); Serial.println("*C");
   Serial.print("Ground Capacitive: "); Serial.println(capread);
+  oled.print("Temp (C): "); 
+  oled.println(sensor.readTemperature());
+  oled.print(", Humidity: ");
+  oled.println(sensor.readHumidity());
+  oled.print("Soil Temp: "); 
+  oled.println(tempC);
+  oled.print("Soil Moisture: "); 
+  oled.println(capread);
+  oled.print("UV Reading: ");
+  oled.println(uv.readUV());
+  oled.display();
   while(Serial2.available()){ // check for gps data 
     if(gps.encode(Serial2.read()))// encode gps data 
     { 
@@ -338,6 +358,7 @@ void readSensorData(){
   }
   sendGPS(latitude, longitude, numSat);
 }
+
 
 void loop()
 {

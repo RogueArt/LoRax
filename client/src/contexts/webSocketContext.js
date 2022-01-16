@@ -88,7 +88,7 @@ function getValueWarning({ sensor, value }) {
     const isDangerousValue = valueWarnings[sensor];
   
     if (isDangerousValue(value)) return `The ${sensorToFullName[sensor]} is unsafe.`;
-    else ''
+    else return '';
   }
   
   const sensorToFullName = {
