@@ -10,6 +10,7 @@ export const WebSocketContext = React.createContext({
 //pass in gateway for cloud context with props
 export function WebSocketProvider(props){
     const [connection, setConnection] = useState(undefined);
+    
     const [state, setState] = useState({
         soil: {
           value: "-",
@@ -49,19 +50,17 @@ export function WebSocketProvider(props){
             console.log("previous state");
             console.log(state);
             console.log(sensor);
-            setState({
-              ...state,
-              [sensor]: {
-                  value: value,
-                  warning: getValueWarning({ sensor, value }),
-              }, 
-            });
+            let newState = {...state};
+            newState[sensor].value = value;
+            newState[sensor].warning = getValueWarning({ sensor, value});
+            setState(newState);
             console.log("new state");
             console.log(state);
           }
         }
         
         setConnection(newConnection);
+        return () => newConnection.close();
       }, []);
 
     //websocket functions
