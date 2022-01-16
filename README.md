@@ -29,7 +29,20 @@ npm run build # Install dependencies
 
 ## Hardware Setup
 
-TODO
+1. Ensure that the ESP32 board configuration has installed.
+
+2. Install the following libraries in the Arduino IDE Library Manager:
+- [Adafruit VEML6070](https://github.com/adafruit/Adafruit_VEML6070)
+- [Adafruit Si7021](https://github.com/adafruit/Adafruit_Si7021)
+- Adafruit Seesaw
+- Arduino Websockets
+- [ArduinoJson](https://arduinojson.org/)
+- [ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWebServer)
+- [TinyGPSPlus](https://github.com/mikalhart/TinyGPSPlus)
+
+3. Update `secrets.h` for your WiFi SSID and server details.
+
+4. Compile and upload `firmware/ESP32Node/ESP32Node.ino`.
 
 ## Running
 
