@@ -78,10 +78,10 @@ export function WebSocketProvider(props){
 }
 
 const valueWarnings = {
-  soil: v => v >= 30 && v <= 70,
-  temp: v => v >= 50 && v <= 80,
-  humid: v => v >= 30 && v <= 80,
-  uv: v => v === "Very Low" || v === "Very High",
+  soil: v => v <= 15,
+  temp: v => v >= 95,
+  humid: v => v <= 15,
+  uv: v => v === "High" || v === "Very High",
 }
 
 function getValueWarning({ sensor, value }) {
