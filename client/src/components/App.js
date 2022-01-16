@@ -27,20 +27,21 @@ class App extends React.Component {
   }
 
   componentDidMount () {
-    this.connection = new WebSocket("ws://localhost:8081");
+    this.connection = new WebSocket("ws://localhost:8080/ws");
     this.connection.onopen = () => {
-      this.connection.send(JSON.stringify(
+      let data = JSON.stringify(
         {
           "type": 0, // registering
           "from": "client",
         }
-      ));
+      );
+      this.connection.send(data);
     }
     this.connection.onmessage = (msg) => {
-      msg = JSON.parse(msg);
+      msg = JSON.parse(msg.data);
       if (msg.type === 1) {
         let obj = {};
-        obj[msg.sensor] = msg.value;
+        obj[`${msg.sensor}.value`] = msg.value;
         this.setState(obj);
       }
     }
