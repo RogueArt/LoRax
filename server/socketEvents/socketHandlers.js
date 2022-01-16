@@ -12,14 +12,16 @@ const socketConnections = {
   client: [],
 }
 
-/* <id: String, { socket: Socket, name: String }> */
-const idToSocketConnection = new Map()
+/* <id: String, { name: String, location: }> */
+const idToSocketData = new Map()
 
 // Functions to handle messages from the socket
 const socketHandlers = {
   registerConnection: async function ({ from, id }, socket) {
     socketConnections[from].push(socket)
-    idToSocketConnection.set(id, { socket, name: id })
+
+    const socketData = idToSocketData.get(id)
+    idToSocketData.set(id, { ...socketData, name: id })
   },
   processSensors: async function (msg) {
     const { id, sensor, value } = msg
@@ -46,11 +48,15 @@ const socketHandlers = {
   },
   renameNode: async function ({ id, name }) {
     // Check if the id exists in our connection
-    if (!idToSocketConnection.has(id)) return console.error('ID does not exist in map!')
+    // if (!idToSocketData.has(id)) return console.error('ID does not exist in map!')
 
     // If it does, update the name
-    const { socket } = idToSocketConnection.get(id)
-    idToSocketConnection.set(id, { socket, name })
+    const socketData = idToSocketData.get(id)
+    idToSocketData.set(id, { ...socketData, name })
+  },
+  registerLocation: async function({ id, location, numSatellites }) {
+    const socketData = idToSocketData.get(id)
+    idToSocketData.set(id, { ...socketData, location, numSatellites })
   },
   handleConnectionClose: async function() {
     console.log('Closing socket!')
