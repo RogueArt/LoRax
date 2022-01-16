@@ -1,6 +1,7 @@
 import React from 'react';
 import InfoCard from './InfoCard';
 import '../styles/App.scss';
+import MapContainer from './MapContainer';
 // import ReactFlow from 'react-flow-renderer';
 
 class App extends React.Component {
@@ -27,7 +28,9 @@ class App extends React.Component {
             value="53%"
           />
         </div>
-        <div className="map-container"></div>
+        <div  className="map-container">
+          <MapContainer />
+        </div>
         <div className="info-text">
           Here’s some more information about plants or fires or whatever we decide to do. Lorem ipsum dolor sit amet, consecteur adipiscing elit. Cras turpis massa, gravida eu nunc ac, pretium luctus tortor. Nulla facilisi. Donec auctor facilisis sapien. 
         </div>
