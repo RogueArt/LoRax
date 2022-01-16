@@ -1,14 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.scss';
-// import App from './components/App';
+import App from './components/App';
 import Header from './components/Header';
-import ManageNodes from './components/ManageNodes';
+// import ManageNodes from './components/ManageNodes';
 
 ReactDOM.render(
   <React.StrictMode>
     <Header />
-    <ManageNodes />
+    <App />
   </React.StrictMode>,
   document.getElementById('root')
 );

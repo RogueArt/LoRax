@@ -3,7 +3,7 @@
 header {
     height: 94px;
     font-size: 14px;
-    border-bottom: 3px solid var.$accent-green;
+    border-bottom: 3px solid var.$accent;
     font-family: "Noto Sans", sans-serif;
     padding: 20px 22px;
 
@@ -15,7 +15,7 @@ header {
     }
 
     h1 {
-        color: var.$accent-green;
+        color: var.$accent;
         font-size: 2em;
         line-height: 20px;
     }
