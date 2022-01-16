@@ -20,6 +20,7 @@ function ConnectANode() {
             <div className={'instruction-code-container'}>
               <code>
                 SSID:     FireNode
+                <br />
                 Password: Alarm1234
               </code>
             </div>
