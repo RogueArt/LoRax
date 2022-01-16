@@ -13,7 +13,7 @@ export function MapContainer({ google }) {
   const [selectedPlace, setSelectedPlace] = useState({ name: '' })
 
   return (
-      <Map google={google} zoom={14} containerStyle={{ width: '100%', height: '360px'}} style={{}}>
+      <Map google={google} zoom={14} containerStyle={{width: '100%', height: '180px', position: 'relative'}}>
         <Marker onClick={onMarkerClick}
                 name={'Current location'} />
  
