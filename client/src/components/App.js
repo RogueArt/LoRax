@@ -1,105 +1,115 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react'
 import InfoCard from './InfoCard';
 import '../styles/App.scss';
+import MapContainer from './MapContainer';
 // import ReactFlow from 'react-flow-renderer';
 
-let valueWarnings = {
-  "soil": (v) => {
+const valueWarnings = {
+  soil: (v) => {
     return (v >= 30 && v <= 70);
   },
-  "temp": (v) => {
+  temp: (v) => {
     return (v >= 50 && v <= 80);
   },
-  "humid": (v) => {
+  humid: (v) => {
     return (v >= 30 && v <= 80);
   },
-  "uv": (v) => {
+  uv: (v) => {
     return (v === "Very Low" || v === "Very High");
   }
 }
 
-let sensorToFullName = {
-  "soil": "soil",
-  "temp": "temperature",
-  "humid": "humidity",
-  "uv": "UV exposure"
+const sensorToFullName = {
+  soil: "soil",
+  temp: "temperature",
+  humid: "humidity",
+  uv: "UV exposure"
 }
 
-class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      soil: {
-        value: "-",
-        warning: "",
-      },
-      temp: {
-        value: "-",
-        warning: "",
-      },
-      humid: {
-        value: "-",
-        warning: "",
-      },
-      uv: {
-        value: "-",
-        warning: "",
-      },
-    }
-  }
+function getValueWarning({ sensor, value }) {
+  const isDangerousValue = valueWarnings[sensor]
 
-  componentDidMount () {
-    this.connection = new WebSocket("ws://firerisk.herokuapp.com/ws");
-    this.connection.onopen = () => {
+  if (isDangerousValue(value)) return `The ${sensorToFullName[sensor]} is unsafe.`
+  else ''
+}
+
+function App() {
+  const [state, setState] = useState({
+    soil: {
+      value: "-",
+      warning: "",
+    },
+    temp: {
+      value: "-",
+      warning: "",
+    },
+    humid: {
+      value: "-",
+      warning: "",
+    },
+    uv: {
+      value: "-",
+      warning: "",
+    },
+  })
+
+  /* eslint-disable */
+  const [connection, setConnection] = useState(new WebSocket("ws://firerisk.herokuapp.com/ws"))
+  
+  useEffect(() => {
+    connection.onopen = () => {
       let data = JSON.stringify(
         {
           "type": 0, // registering
           "from": "client",
         }
       );
-      this.connection.send(data);
+    connection.send(data);
+
     }
-    this.connection.onmessage = (msg) => {
-      msg = JSON.parse(msg.data);
-      if (msg.type === 1) {
-        let obj = {};
-        obj[msg.sensor] = {
-          "value": msg.value,
-          "warning": valueWarnings[msg.sensor](msg.value) ? "" : `The ${sensorToFullName[msg.sensor]} is unsafe.`,
-        };
-        this.setState(obj);
-        console.log(this.state);
+    connection.onmessage = (msg) => {
+      const { type, sensor, value } = JSON.parse(msg.data);
+      if (type === 1) {
+        setState({
+          ...state,
+          [sensor]: {
+              value: value,
+              warning: getValueWarning,
+          }, 
+        });
+        console.log(state);
       }
     }
-  }
+  }, [])
 
-  render () {
     return (
       <main>
         <div className="info-cards">
           <InfoCard
             title="Soil Moisture"
-            value={this.state.soil.value}
-            warning={this.state.soil.warning}
+            value={state.soil.value}
+            warning={state.soil.warning}
           />
           <InfoCard
             title="Temperature"
-            value={this.state.temp.value}
-            warning={this.state.temp.warning}
+            value={state.temp.value}
+            warning={state.temp.warning}
           />
           <InfoCard
             title="UV Light"
-            value={this.state.uv.value}
-            warning={this.state.uv.warning}
+            value={state.uv.value}
+            warning={state.uv.warning}
             smaller
           />
           <InfoCard
             title="Humidity"
-            value={this.state.humid.value}
-            warning={this.state.humid.warning}
+            value={state.humid.value}
+            warning={state.humid.warning}
           />
         </div>
-        <div className="map-container"></div>
+        <div className="map-container">
+          <MapContainer />
+        </div>
         <div className="info-text">
           Here’s some more information about plants or fires or whatever we decide to do. Lorem ipsum dolor sit amet, consecteur adipiscing elit. Cras turpis massa, gravida eu nunc ac, pretium luctus tortor. Nulla facilisi. Donec auctor facilisis sapien. 
         </div>
@@ -108,7 +118,6 @@ class App extends React.Component {
         </div>
       </main>
     );
-  }
 }
 
 export default App;

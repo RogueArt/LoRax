@@ -3,21 +3,19 @@ import PropTypes from 'prop-types';
 import classNames from "classnames";
 import '../styles/InfoCard.scss';
 
-class InfoCard extends React.Component {
-    render() {
-        return (
-            <div className={classNames({
-                "info-card": true,
-                "warning": this.props.warning !== undefined && this.props.warning !== "",
-            })}>
-                <h3>{ this.props.title }</h3>
-                <h1 className={classNames({
-                    "smaller": this.props.smaller,
-                })}>{ this.props.value }</h1>
-                <p>{this.props.warning}</p>
-            </div>
-        )
-    }
+function InfoCard({ warning, title, smaller, value }) {
+    return (
+        <div className={classNames({
+            "info-card": true,
+            "warning": Boolean(warning),
+        })}>
+            <h3>{title}</h3>
+            <h1 className={classNames({
+                "smaller": smaller,
+            })}>{value}</h1>
+            <p>{warning}</p>
+        </div>
+    )
 }
 
 InfoCard.propTypes = {
