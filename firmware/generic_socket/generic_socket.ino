@@ -2,6 +2,7 @@
 #include <WebSocketsClient_Generic.h>
 #include <SocketIOclient_Generic.h>
 #include "secrets.h"
+#include <WiFi.h>
 
 SocketIOclient socketIO;
 
@@ -69,12 +70,12 @@ void setup() {
   Serial.println(WEBSOCKETS_GENERIC_VERSION);
 
   // check for the WiFi module:
-  if (WiFi.status() == WL_NO_MODULE)
-  {
-    Serial.println("Communication with WiFi module failed!");
-    // don't continue
-    while (true);
-  }
+  // if (WiFi.status() == WL_NO_MODULE)
+  // {
+  //   Serial.println("Communication with WiFi module failed!");
+  //   // don't continue
+  //   while (true);
+  // }
 
   Serial.print(F("Connecting to SSID: "));
   Serial.println(WIFI);
@@ -95,19 +96,21 @@ void setup() {
 
   // server address, port and URL
   Serial.print("Connecting to WebSockets Server @ IP address: ");
-  Serial.print(serverIP);
+  Serial.print(BASE_URL);
   Serial.print(", port: ");
-  Serial.println(serverPort);
+  Serial.println(80);
 
   // setReconnectInterval to 10s, new from v2.5.1 to avoid flooding server. Default is 0.5s
   socketIO.setReconnectInterval(10000);
+
+  socketIO.setExtraHeaders("Authorization: 1234567890");
 
   //socketIO.setExtraHeaders("Authorization: 1234567890");
 
   // server address, port and URL
   // void begin(IPAddress host, uint16_t port, String url = "/socket.io/?EIO=4", String protocol = "arduino");
   // To use default EIO=4 from v2.5.1
-  socketIO.begin(serverIP, serverPort);
+  socketIO.begin(BASE_URL, 80);
 
   // event handler
   socketIO.onEvent(socketIOEvent);
@@ -131,7 +134,7 @@ void loop()
 
     // add evnet name
     // Hint: socket.on('event_name', ....
-    array.add("event_name");
+    array.add("soil");
 
     // add payload (parameters) for the event
     JsonObject param1 = array.createNestedObject();

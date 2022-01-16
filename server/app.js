@@ -13,6 +13,7 @@ const dotenv = require("dotenv");
 dotenv.config(); //load in our dotenv
 
 const db = require("./db/db.js");
+const DataModel = require('./db/models/Data')
 
 // Import routers
 const socketRoutes = require("./routes/socketRoutes");
@@ -30,8 +31,15 @@ let socketConnections = [];
 socketServer.on("connection", (socket) => {
   socketConnections.push(socket);
 
-  socket.on("message", (msg) => {
-    socketConnections.forEach((s) => s.send(msg));
+  socket.on("message", async (rawData) => {
+    socketConnections.forEach((s) => s.send(rawData));
+
+    // Parse the data we received
+    const data = JSON.parse(rawData.toString())
+    console.log('Debug socket data: ', data)
+
+    // Deal with received ESP data here
+    await handleESPReceiveData(data)
   });
   socket.on("close", () => {
     console.log("Closing socket!");
@@ -53,3 +61,28 @@ rootServer.on("upgrade", (request, socket, head) => {
     socketServer.emit("connection", socket, request);
   });
 });
+
+async function handleESPReceiveData(data) {
+  // Server is receiving data
+  const { type } = data
+  if (type === undefined) throw Error('No type was supplied for the given data.')
+  
+  if (type === 1) {
+    const { node_name = 'test', sensor, value } = data
+
+    // Check if the sensor exists for the node
+    if (await DataModel.exists({ node_name, sensor })) {
+      // If it does, then find and update it
+      return DataModel.findOneAndUpdate(
+        { node_name, sensor },
+        { $push: { values: value } }
+      )
+    }
+
+    // Otherwise, create a new document insert it
+    const newData = new DataModel({ node_name, sensor, values: [value] })
+    return await newData.save().catch(console.error)
+  }
+
+  // Ignore if connection is being initialized
+}
